@@ -2,22 +2,22 @@
 const menuItems = [
     { id: 1, name: "Canjica (Mungunzá Doce)", price: 8.00, image: "assets/canjica.jpg", category: "doces" },
     { id: 2, name: "Pamonha", price: 7.50, image: "assets/pamonha.jpg", category: "doces" },
-    { id: 3, name: "Bolo de Milho (Ariely)", price: 6.50, image: "assets/bolo-milho.jpg", category: "doces" },
-    { id: 4, name: "Milho Cozido (Caubi)", price: 5.00, image: "assets/milho-cozido.jpg", category: "salgados" },
+    { id: 3, name: "Bolo de Milho", price: 6.50, image: "assets/bolo-milho.jpg", category: "doces" },
+    { id: 4, name: "Milho Cozido", price: 5.00, image: "assets/milho-cozido.jpg", category: "salgados" },
     { id: 5, name: "Curau de Milho", price: 6.00, image: "assets/curau.jpg", category: "doces" },
-    { id: 6, name: "Arroz Doce (Laylla)", price: 7.00, image: "assets/arroz-doce.jpg", category: "doces" },
+    { id: 6, name: "Arroz Doce", price: 7.00, image: "assets/arroz-doce.jpg", category: "doces" },
     { id: 7, name: "Cuscuz Nordestino", price: 6.50, image: "assets/cuscuz.jpg", category: "salgados" },
     { id: 8, name: "Pé de Moleque", price: 5.50, image: "assets/pe-moleque.jpg", category: "doces" },
     { id: 9, name: "Paçoca de Amendoim", price: 4.50, image: "assets/pacoca.jpg", category: "doces" },
     { id: 10, name: "Maçã do Amor", price: 8.00, image: "assets/maca-amor.jpg", category: "doces" },
-    { id: 11, name: "Bolo de Mandioca (Allana)", price: 6.00, image: "assets/bolo-mandioca.jpg", category: "doces" },
+    { id: 11, name: "Bolo de Mandioca", price: 6.00, image: "assets/bolo-mandioca.jpg", category: "doces" },
     { id: 12, name: "Cocada", price: 4.00, image: "assets/cocada.jpg", category: "doces" },
-    { id: 14, name: "Pipoca (Davi)", price: 3.50, image: "assets/pipoca.jpg", category: "salgados" },
+    { id: 14, name: "Pipoca", price: 3.50, image: "assets/pipoca.jpg", category: "salgados" },
     { id: 18, name: "Broa de Milho", price: 5.00, image: "assets/broa-milho.jpg", category: "doces" },
     { id: 19, name: "Tapioca", price: 6.00, image: "assets/tapioca.jpg", category: "salgados" },
-    { id: 20, name: "Bolo de Fubá (Maria P)", price: 5.50, image: "assets/bolo-fuba.jpg", category: "doces" },
-    { id: 21, name: "Bolo de Cenoura (Monique)", price: 6.50, image: "assets/bolo-cenoura.jpg", category: "doces" },
-    { id: 22, name: "Caldinho (Isa)", price: 6.00, image: "assets/caldinho.jpg", category: "salgados" }
+    { id: 20, name: "Bolo de Fubá", price: 5.50, image: "assets/bolo-fuba.jpg", category: "doces" },
+    { id: 21, name: "Bolo de Cenoura", price: 6.50, image: "assets/bolo-cenoura.jpg", category: "doces" },
+    { id: 22, name: "Caldinho", price: 6.00, image: "assets/caldinho.jpg", category: "salgados" }
 ];
 
 // Variáveis globais
