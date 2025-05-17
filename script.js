@@ -164,53 +164,293 @@ function goToCheckout() {
     orderTotalElement.textContent = `R$ ${total.toFixed(2)}`;
     pixAmountElement.textContent = `R$ ${total.toFixed(2)}`;
     
+    // Adiciona botão de confirmação de pagamento
+    const pixInfo = document.querySelector('.pix-info');
+    pixInfo.innerHTML += `
+        <button id="confirm-payment" class="checkout-btn" style="margin-top: 20px;">
+            <i class="fas fa-check-circle"></i> Pagamento Aprovado
+        </button>
+    `;
+    
     document.getElementById('cart-overlay').classList.remove('active');
     document.getElementById('checkout-page').classList.add('active');
+    
+    // Adiciona evento ao botão de confirmação
+    document.getElementById('confirm-payment').addEventListener('click', function() {
+        generateVouchers();
+        document.getElementById('checkout-page').classList.remove('active');
+    });
 }
-
 // Volta para o menu
 function backToMenu() {
     document.getElementById('checkout-page').classList.remove('active');
 }
 
 // Gera fichas virtuais
+// Substitua a função generateVouchers por esta versão nova
 function generateVouchers() {
-    const vouchersGrid = document.getElementById('vouchers-grid');
+    const vouchersGrid = document.getElementById('voucher-screen-grid');
     vouchersGrid.innerHTML = '';
     
     cart.forEach((item, index) => {
-        const voucherCode = `FV-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+        const voucherCode = `FV-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
         
         const voucher = document.createElement('div');
-        voucher.className = 'voucher-card';
+        voucher.className = 'voucher-screen-card';
         voucher.innerHTML = `
-            <div class="voucher-header">
-                <div class="voucher-title">${item.name}</div>
-                <div class="voucher-code">${voucherCode}</div>
-            </div>
-            <div class="voucher-details">
-                <p><strong>Preço:</strong> R$ ${item.price.toFixed(2)}</p>
-                <p><strong>Validade:</strong> ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
-                <div class="voucher-qr">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${voucherCode}" alt="QR Code">
-                </div>
-            </div>
+            <h3>${item.name}</h3>
+            <p><strong>Código:</strong> ${voucherCode}</p>
+            <p><strong>Valor:</strong> R$ ${item.price.toFixed(2)}</p>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${voucherCode}" alt="QR Code">
+            <p><strong>Validade:</strong> ${new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')}</p>
         `;
         
         vouchersGrid.appendChild(voucher);
     });
     
-    // Mostra o modal de fichas
-    document.getElementById('voucher-modal').classList.add('active');
-}
-
-// Fecha o modal de fichas
-function closeVoucherModal() {
-    document.getElementById('voucher-modal').classList.remove('active');
-    // Limpa o carrinho após a geração das fichas
+    // Mostra a tela de vouchers
+    document.getElementById('checkout-page').classList.remove('active');
+    document.getElementById('voucher-screen').classList.add('active');
+    
+    // Limpa o carrinho
     cart = [];
     updateCart();
+    updateCartCount();
 }
+
+// Adicione esta nova função para imprimir
+function printAllVouchers() {
+    const voucherScreen = document.getElementById('voucher-screen');
+    const originalContents = document.body.innerHTML;
+    
+    document.body.innerHTML = voucherScreen.innerHTML;
+    window.print();
+    
+    document.body.innerHTML = originalContents;
+    document.getElementById('voucher-screen').classList.add('active');
+}
+function goToCheckout() {
+    if (cart.length === 0) {
+        showNotification('Seu carrinho está vazio!', 'error');
+        return;
+    }
+    
+    // ... (mantenha o código existente de atualização dos itens)
+    
+    // Adiciona o botão de aprovação
+    const pixInfo = document.querySelector('.pix-info');
+    if (!document.getElementById('confirm-payment')) {
+        pixInfo.innerHTML += `
+            <button id="confirm-payment" class="checkout-btn" style="margin-top: 20px;">
+                <i class="fas fa-check-circle"></i> Simular Pagamento Aprovado
+            </button>
+        `;
+        
+        document.getElementById('confirm-payment').addEventListener('click', generateVouchers);
+    }
+    
+    document.getElementById('cart-overlay').classList.remove('active');
+    document.getElementById('checkout-page').classList.add('active');
+}
+
+// Variável global para armazenar vouchers
+let vouchers = [];
+
+// Modifique a função generateVouchers
+function generateVouchers() {
+    // Salva os itens do carrinho como vouchers
+    vouchers = [...cart];
+    
+    // Atualiza a exibição
+    showVouchers();
+    
+    // Limpa o carrinho
+    cart = [];
+    updateCart();
+    updateCartCount();
+    
+    // Mostra a tela de vouchers
+    document.getElementById('checkout-page').classList.remove('active');
+    document.getElementById('voucher-screen').classList.add('active');
+}
+
+// Nova função para mostrar vouchers
+function showVouchers() {
+    const vouchersGrid = document.getElementById('voucher-screen-grid');
+    
+    if (vouchers.length === 0) {
+        vouchersGrid.innerHTML = `
+            <div class="no-vouchers">
+                <p>Nenhum voucher disponível ainda</p>
+                <p>Faça uma compra para receber seus vouchers!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    vouchersGrid.innerHTML = vouchers.map(item => `
+        <div class="voucher-screen-card">
+            <h3>${item.name}</h3>
+            <div class="voucher-price">R$ ${item.price.toFixed(2)}</div>
+            <img src="${item.image}" alt="${item.name}" style="max-height: 150px; width: auto; border-radius: 8px;">
+        </div>
+    `).join('');
+}
+
+// Nova função para voltar ao menu
+function backToMenuFromVouchers() {
+    document.getElementById('voucher-screen').classList.remove('active');
+}
+
+// Modifique a função goToCheckout no script.js
+function goToCheckout() {
+    if (cart.length === 0) {
+        showNotification('Seu carrinho está vazio!', 'error');
+        return;
+    }
+    
+    const orderItemsContainer = document.getElementById('order-items');
+    const orderTotalElement = document.getElementById('order-total');
+    const pixAmountElement = document.getElementById('pix-amount');
+    
+    orderItemsContainer.innerHTML = cart.map(item => `
+        <div class="order-item">
+            <span>${item.name}</span>
+            <span>R$ ${item.price.toFixed(2)}</span>
+        </div>
+    `).join('');
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    orderTotalElement.textContent = `R$ ${total.toFixed(2)}`;
+    pixAmountElement.textContent = `R$ ${total.toFixed(2)}`;
+    
+    // Remove qualquer botão de confirmação existente
+    const existingBtn = document.getElementById('confirm-payment');
+    if (existingBtn) existingBtn.remove();
+    
+    // Adiciona o novo botão de confirmação
+    const pixInfo = document.querySelector('.pix-info');
+    pixInfo.innerHTML += `
+        <button id="confirm-payment" class="checkout-btn" style="margin-top: 20px;">
+            <i class="fas fa-check-circle"></i> Simular Pagamento Aprovado
+        </button>
+    `;
+    
+    // Fecha o carrinho e abre o checkout
+    document.getElementById('cart-overlay').classList.remove('active');
+    document.getElementById('checkout-page').classList.add('active');
+    
+    // Adiciona evento ao novo botão
+    document.getElementById('confirm-payment').addEventListener('click', function() {
+        // Simula a aprovação do pagamento
+        simulatePaymentApproval();
+    });
+}
+
+// Nova função para simular aprovação de pagamento
+function simulatePaymentApproval() {
+    // Gera os vouchers
+    generateVouchers();
+    
+    // Fecha a tela de checkout
+    document.getElementById('checkout-page').classList.remove('active');
+    
+    // Mostra notificação
+    showNotification('Pagamento aprovado! Vouchers gerados.', 'success');
+}
+
+// Adicione esta função para mostrar vouchers no menu lateral
+// Atualize a função showVouchersInSideMenu
+function showVouchersInSideMenu() {
+    const sideMenu = document.querySelector('.side-menu');
+    const categoryList = sideMenu.querySelector('.category-list');
+    const existingOption = sideMenu.querySelector('.vouchers-option');
+    
+    if (!existingOption) {
+        const li = document.createElement('li');
+        li.className = 'vouchers-option';
+        
+        if (vouchers.length > 0) {
+            li.innerHTML = `
+                <a href="#" onclick="showVouchersScreen()">
+                    <i class="fas fa-ticket-alt"></i> Meus Vouchers (${vouchers.length})
+                </a>
+            `;
+        } else {
+            li.innerHTML = `
+                <a href="#" style="color: var(--text-light);">
+                    <i class="fas fa-ticket-alt"></i> Sem Vouchers
+                </a>
+                <small style="display: block; padding-left: 28px; color: var(--text-light);">
+                    Compre algo para receber vouchers!
+                </small>
+            `;
+        }
+        
+        categoryList.prepend(li);
+    } else {
+        // Atualiza a opção existente
+        if (vouchers.length > 0) {
+            existingOption.innerHTML = `
+                <a href="#" onclick="showVouchersScreen()">
+                    <i class="fas fa-ticket-alt"></i> Meus Vouchers (${vouchers.length})
+                </a>
+            `;
+        } else {
+            existingOption.innerHTML = `
+                <a href="#" style="color: var(--text-light);">
+                    <i class="fas fa-ticket-alt"></i> Sem Vouchers
+                </a>
+                <small style="display: block; padding-left: 28px; color: var(--text-light);">
+                    Compre algo para receber vouchers!
+                </small>
+            `;
+        }
+    }
+}
+
+// Atualize a função showVouchers
+function showVouchers() {
+    const vouchersGrid = document.getElementById('voucher-screen-grid');
+    
+    if (vouchers.length === 0) {
+        vouchersGrid.innerHTML = `
+            <div class="no-vouchers">
+                <p>Nenhum voucher disponível ainda</p>
+                <p>Faça uma compra para receber seus vouchers!</p>
+            </div>
+        `;
+    } else {
+        vouchersGrid.innerHTML = vouchers.map(item => `
+            <div class="voucher-screen-card">
+                <h3>${item.name}</h3>
+                <div class="voucher-price">R$ ${item.price.toFixed(2)}</div>
+                <img src="${item.image}" alt="${item.name}" class="voucher-image">
+            </div>
+        `).join('');
+    }
+    
+    // Atualiza o menu lateral
+    showVouchersInSideMenu();
+}
+
+// Nova função para mostrar a tela de vouchers
+function showVouchersScreen() {
+    showVouchers();
+    document.getElementById('voucher-screen').classList.add('active');
+    document.getElementById('side-menu-overlay').classList.add('hidden');
+    document.getElementById('side-menu').classList.add('hidden');
+    document.querySelector('.menu-toggle').classList.remove('active');
+}
+
+// Chame esta função no DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    renderMenu();
+    updateCartCount();
+    showVouchersInSideMenu();
+    
+    // ... (restante do código de inicialização)
+});
 
 // Imprime as fichas
 function printVouchers() {
@@ -298,3 +538,21 @@ style.textContent = `
 }
 `;
 document.head.appendChild(style);
+
+function approve() {
+    // Simula itens no carrinho para teste
+    cart = [
+        { id: 1, name: "Canjica (Mungunzá Doce)", price: 8.00 },
+        { id: 3, name: "Bolo de Milho", price: 6.50 },
+        { id: 5, name: "Curau de Milho", price: 6.00 }
+    ];
+    
+    // Atualiza o carrinho
+    updateCart();
+    
+    // Gera os vouchers automaticamente
+    generateVouchers();
+    
+    // Mostra mensagem
+    showNotification('Compra aprovada para teste! Vouchers gerados.', 'success');
+}
