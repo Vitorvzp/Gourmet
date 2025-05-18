@@ -884,7 +884,6 @@ body {
     align-items: center;
     gap: 8px;
 }
-
 #confirm-payment {
     transition: all 0.3s ease;
 }

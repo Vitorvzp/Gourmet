@@ -1,4 +1,8 @@
 // Dados completos do cardápio
+// Configurações da Planilha Google
+const GOOGLE_SHEETS_ID = '1N3V-kdEMGOEKxGhpEEacKac7TlNNpPd7NsRUHL8GN4o';
+const GOOGLE_SHEETS_NAME = 'Database';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxV6KYJhER_4xyc8ZfEoDaLZuE8akW4tupDZif85nyuNBEsi6jbcIEkGtnZLZK6vU4q/exec';
 const menuItems = [
     { id: 1, name: "Canjica (Mungunzá Doce)", price: 8.00, image: "assets/canjica.jpg", category: "doces" },
     { id: 2, name: "Pamonha", price: 7.50, image: "assets/pamonha.jpg", category: "doces" },
@@ -78,6 +82,62 @@ function renderMenu(filterCategory = 'todos') {
             </div>
         </div>
     `).join('');
+}
+
+async function registerSaleInGoogleSheets(cartItems, total) {
+    try {
+        // Verifica se cartItems é um array válido
+        if (!Array.isArray(cartItems)) {
+            console.error('cartItems não é um array:', cartItems);
+            throw new Error('Dados do carrinho inválidos');
+        }
+
+        // Formata os dados para envio
+        const saleData = {
+            cliente: 'Cliente Online',
+            itens: cartItems.map(item => item.name).join(', '),
+            quantidade: cartItems.length,
+            total: total.toFixed(2)
+        };
+
+        console.log('Enviando para Google Sheets:', saleData);
+
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(saleData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
+        if (result.error) {
+            throw new Error(result.error);
+        }
+
+        console.log('Registro bem-sucedido:', result);
+        return result.registeredData;
+        
+    } catch (error) {
+        console.error('Erro detalhado ao registrar:', {
+            error: error.message,
+            cartItems: cartItems,
+            stack: error.stack
+        });
+        showNotification('Erro ao registrar venda', 'error');
+        return null;
+    }
+}
+// Teste manual - adicione temporariamente no seu código
+async function test() {
+    const testItems = [
+        { id: 1, name: "Produto Teste 1", price: 10 },
+        { id: 2, name: "Produto Teste 2", price: 20 }
+    ];
+    await registerSaleInGoogleSheets(testItems, 30);
 }
 
 // Filtra por categoria
